@@ -21,7 +21,7 @@ public class RecoveryTool {
      */
     public static Map<Integer, BufferEntry> run() {
         // analyze log and filter out uncommitted entries
-        List<LogEntry> committed = LogStore.getEntries(true);
+        List<LogEntry> committed = new LinkedList<>(LogStore.getEntries(true));
         // sort by LSN in case log is out of order
         committed.sort(Comparator.comparingInt(LogEntry::lsn));
 
