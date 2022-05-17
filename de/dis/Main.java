@@ -1,7 +1,6 @@
 package de.dis;
 
 public class Main {
-
     public static void main(String[] args) {
         Thread t1 = new Client("client1", 10);
         Thread t2 = new Client("client2", 20);
@@ -16,8 +15,8 @@ public class Main {
 
         try {
             Thread.sleep(2000L);
-        } catch (InterruptedException var9) {
-            var9.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         t1.interrupt();
