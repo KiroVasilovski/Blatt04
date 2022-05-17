@@ -34,6 +34,8 @@ public class PersistenceManager {
      * Constructor: performs recovery if needed and clears the log file
      */
     private PersistenceManager() {
+        // run recovery tool and add unrecoverable entries back into the buffer
+        // TODO should unrecoverable entries be ignored?
         Map<Integer, BufferEntry> unrecovered = RecoveryTool.run();
         _buffer.putAll(unrecovered);
 
@@ -107,7 +109,7 @@ public class PersistenceManager {
     }
 
     /**
-     * Handles the propagation of changes to permanent DB if the size of the buffer reached the predetermined maximum
+     * Handles the propagation of changes to permanent DB if the size of the buffer reached the predetermined maximum.
      */
     private void handleFullBuffer() {
         LinkedList<Integer> toDelete = new LinkedList<>();
@@ -121,6 +123,7 @@ public class PersistenceManager {
                 //write user data to permanent DB
                 try {
                     PageStore.write(pageId, new PageData(bufEntry.lsn(), bufEntry.data()));
+//                    PageStore.write(pageId, null);
 
                     System.out.printf("page %d written to permanent DB\n", pageId);
 

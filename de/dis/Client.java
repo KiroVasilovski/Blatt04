@@ -23,13 +23,13 @@ public class Client extends Thread {
         int taid;
 
         while (true) {
-            //Client action
             taid = pm.beginTransaction();
 
             int writeCount = (int) (Math.random() * (10) + 1);
 
             for (int i = 1; i < writeCount; i++) {
                 int page = (int) (Math.random() * (10) + firstPage);
+
                 System.out.printf("%s -> page %d (write %d of %d)\n", name, page, i, writeCount);
                 pm.write(taid, page, name);
 

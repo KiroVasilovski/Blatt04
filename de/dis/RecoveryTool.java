@@ -7,10 +7,7 @@ import de.dis.pages.PageData;
 import de.dis.pages.PageStore;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RecoveryTool {
     /**
@@ -23,11 +20,18 @@ public class RecoveryTool {
      * @return a map of Page IDs for stale pages with their corresponding newer BufferEntry
      */
     public static Map<Integer, BufferEntry> run() {
-        List<LogEntry> winners = LogStore.getEntries(true);
+        // analyze log and filter out uncommitted entries
+        List<LogEntry> committed = LogStore.getEntries(true);
+        // sort by LSN in case log is out of order
+        committed.sort(Comparator.comparingInt(LogEntry::lsn));
+
+        // store the latest recovered state and possibly failed recoveries
         Map<Integer, BufferEntry> recoveredStates = new HashMap<>();
         Map<Integer, BufferEntry> failed = new HashMap<>();
 
-        for (LogEntry entry : winners) {
+        for (LogEntry entry : committed) {
+            // set the most recent BufferEntry for the given page
+            // replays the write history in sequential order
             recoveredStates.put(entry.pageid(), new BufferEntry(entry.lsn(), entry.taid(), entry.data()));
         }
 
@@ -37,9 +41,10 @@ public class RecoveryTool {
             BufferEntry recovered = recoveredState.getValue();
             PageData persisted = PageStore.read(pageid);
 
-            if (persisted == null ||
-                    (persisted.lsn() < recovered.lsn()
-                            && !persisted.data().equals(recovered.data()))) {
+            // if there is no persisted page or the persisted LSN is lower than the
+            // latest recovered LSN, the page data is overwritten
+            if (persisted == null
+                    || (persisted.lsn() < recovered.lsn())) {
                 System.out.printf("Recovering page %d\nOld: %d,%s\nNew: %d,%s\n",
                         pageid, persisted.lsn(), persisted.data(), recovered.lsn(), recovered.data());
                 try {

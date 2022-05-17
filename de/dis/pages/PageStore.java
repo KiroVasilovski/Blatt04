@@ -22,6 +22,12 @@ public class PageStore {
         return String.format("%s%d.txt", PAGE_PATH, id);
     }
 
+    /**
+     * Read the current persisted data from a single page.
+     *
+     * @param id the page to read from
+     * @return the data on the page, or null if it does not exist
+     */
     public static PageData read(int id) {
         if (id < MIN_PAGE || id > MAX_PAGE)
             throw new IllegalArgumentException(String.format("Page ID must be between %d and %d", MIN_PAGE, MAX_PAGE));
@@ -58,7 +64,16 @@ public class PageStore {
         }
     }
 
+    /**
+     * Write the given page data to permanent DB.
+     *
+     * @param id    the Page ID to write to
+     * @param page  the data to write to the page
+     * @throws IOException
+     */
     public static void write(int id, PageData page) throws IOException {
+        if (page == null) return;
+
         try (FileWriter writer = new FileWriter(getPath(id), false)) {
             writer.write(String.format("%d,%s", page.lsn(), page.data()));
         }

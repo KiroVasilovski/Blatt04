@@ -71,6 +71,12 @@ public class LogStore {
         }
     }
 
+    /**
+     * Get all entries currently in the log file.
+     *
+     * @param skipUncommitted whether to skip entries from transactions that have not yet been committed
+     * @return a list of log entries
+     */
     public static List<LogEntry> getEntries(boolean skipUncommitted) {
         List<LogEntry> logEntries = new ArrayList<>();
         Set<Integer> uncommitted = new HashSet<>();
@@ -82,10 +88,13 @@ public class LogStore {
                 while (s.hasNextLine()) {
                     String line = s.nextLine();
                     try {
+                        // parse one log entry line
                         String[] entries = line.split(",");
                         int lsn = Integer.parseInt(entries[0]);
                         int taid = Integer.parseInt(entries[1]);
                         if (entries.length == 3 && skipUncommitted) {
+                            // if the line is a BOT or EOT marker and we are tracking commits,
+                            // use the action marker to track the commit state of this transaction
                             String action = entries[2];
                             if (LogAction.TRANSACTION_END.code().equals(action)) {
                                 uncommitted.remove(taid);
@@ -112,6 +121,11 @@ public class LogStore {
                 : logEntries.stream().filter(entry -> !uncommitted.contains(entry.taid())).toList();
     }
 
+    /**
+     * Get all entries currently in the log file.
+     *
+     * @return a list of all log entries, including uncommitted writes
+     */
     public static List<LogEntry> getEntries() {
         return getEntries(false);
     }
