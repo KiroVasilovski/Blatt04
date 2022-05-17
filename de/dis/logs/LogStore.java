@@ -49,6 +49,11 @@ public class LogStore {
         return lsn;
     }
 
+    /**
+     * Get the next available LSN from the current logfile.
+     *
+     * @return the next unused LSN
+     */
     private static int getNextLSN() {
         File file = new File(LOG_FILE_PATH);
         if (!file.isFile()) return 0;
