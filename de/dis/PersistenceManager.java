@@ -1,5 +1,6 @@
 package de.dis;
 
+import de.dis.helper.Value;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,8 +8,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
-
-import de.dis.helper.Value;
 
 /**
  * Class for the Persistence Manager managing logging, access to user data for clients
