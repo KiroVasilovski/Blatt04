@@ -45,8 +45,8 @@ public class RecoveryTool {
             // latest recovered LSN, the page data is overwritten
             if (persisted == null
                     || (persisted.lsn() < recovered.lsn())) {
-                System.out.printf("Recovering page %d\nOld: %d,%s\nNew: %d,%s\n",
-                        pageid, persisted.lsn(), persisted.data(), recovered.lsn(), recovered.data());
+                System.out.printf("Recovering page %d\nOld: %s\nNew: %s\n",
+                        pageid, persisted, recovered);
                 try {
                     PageStore.write(pageid, new PageData(recovered.lsn(), recovered.data()));
                 } catch (IOException e) {
