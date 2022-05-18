@@ -17,9 +17,12 @@ public class RecoveryTool {
      * If the tool fails to update a stale page, its corresponding BufferEntry
      * will be added to the returned map.
      *
+     * @param dry if set to true, the tool will only display the stale pages but not actually recover them yet
+     *            (for debugging/analysis purposes)
+     *
      * @return a map of Page IDs for stale pages with their corresponding newer BufferEntry
      */
-    public static Map<Integer, BufferEntry> run() {
+    public static Map<Integer, BufferEntry> run(boolean dry) {
         // analyze log and filter out uncommitted entries
         List<LogEntry> committed = new LinkedList<>(LogStore.getEntries(true));
         // sort by LSN in case log is out of order
@@ -45,17 +48,29 @@ public class RecoveryTool {
             // latest recovered LSN, the page data is overwritten
             if (persisted == null
                     || (persisted.lsn() < recovered.lsn())) {
-                System.out.printf("Recovering page %d\nOld: %s\nNew: %s\n",
+                System.out.printf("Found stale page %d\nOld: %s\nNew: %s\n",
                         pageid, persisted, recovered);
-                try {
-                    PageStore.write(pageid, new PageData(recovered.lsn(), recovered.data()));
-                } catch (IOException e) {
-                    System.err.printf("Failed to recover page %d\n%s\n", e.getMessage());
-                    failed.put(pageid, recovered);
+                if (!dry) {
+                    try {
+                        PageStore.write(pageid, new PageData(recovered.lsn(), recovered.data()));
+                        System.out.println("Page updated");
+                    } catch (IOException e) {
+                        System.err.printf("Failed to recover page %d\n%s\n", e.getMessage());
+                        failed.put(pageid, recovered);
+                    }
                 }
             }
         }
 
         return failed;
+    }
+
+    /**
+     * Perform a full recovery, **not** as a dry run.
+     *
+     * @see RecoveryTool#run(boolean)
+     */
+    public static Map<Integer, BufferEntry> run() {
+        return run(false);
     }
 }

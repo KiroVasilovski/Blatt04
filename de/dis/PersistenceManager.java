@@ -36,9 +36,9 @@ public class PersistenceManager {
     private PersistenceManager() {
         // run recovery tool and add unrecoverable entries back into the buffer
         // TODO should unrecoverable entries be ignored?
-        Map<Integer, BufferEntry> unrecovered = RecoveryTool.run();
-        _buffer.putAll(unrecovered);
-
+//        Map<Integer, BufferEntry> unrecovered = RecoveryTool.run();
+//        _buffer.putAll(unrecovered);
+//
         LogStore.clear();
     }
 

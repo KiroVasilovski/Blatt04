@@ -1,7 +1,20 @@
 package de.dis;
 
+import de.dis.logs.LogStore;
+
 public class Main {
     public static void main(String[] args) {
+//        RecoveryTool.run(true);
+
+        startClients();
+    }
+
+    /**
+     * Start the clients and simulate database access.
+     *
+     * **WARNING**: deletes the old log file at the start.
+     */
+    private static void startClients() {
         Thread t1 = new Client("client1", 10);
         Thread t2 = new Client("client2", 20);
         Thread t3 = new Client("client3", 30);
